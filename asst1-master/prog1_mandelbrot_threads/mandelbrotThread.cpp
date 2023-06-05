@@ -22,7 +22,15 @@ extern void mandelbrotSerial(
     int maxIterations,
     int output[]);
 
-
+extern void _mandelbrotSerial(
+    float x0, float y0, float x1, float y1,
+    int width, int height,
+    int startRow, int totalRows,
+    int maxIterations,
+    int output[],
+    int numthread,
+    int allthread
+);
 //
 // workerThreadStart --
 //
@@ -38,13 +46,15 @@ void _workerThreadStart(WorkerArgs * const args) {
     printf("Hello world from thread %d\n", args->threadId);
 }
 void workerThreadStart(WorkerArgs * const args) {
-    mandelbrotSerial(       //每个子线程调用单线程函数
+    _mandelbrotSerial(       //每个子线程调用单线程函数
     args->x0,args->y0,args->x1,args->y1    //绘制范围   
     ,args->width,args->height    //宽、高
-    ,args->height*args->threadId/args->numThreads   //该线程开始的高度
-    ,args->height / args->numThreads //每个线程负责的高度
+    ,0//args->height*args->threadId/args->numThreads   //该线程开始的高度
+    ,args->height//args->height / args->numThreads //每个线程负责的高度
     ,args->maxIterations   //最多迭代次数(256)
     ,args->output     //存储数组
+    ,args->threadId
+    ,args->numThreads
     );
 
     printf("Thread %d finished\n", args->threadId);
@@ -86,7 +96,6 @@ void mandelbrotThread(
         args[i].maxIterations = maxIterations;
         args[i].numThreads = numThreads;
         args[i].output = output;
-      
         args[i].threadId = i;
     }
 
