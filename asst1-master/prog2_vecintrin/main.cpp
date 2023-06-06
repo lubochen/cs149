@@ -175,7 +175,6 @@ void absSerial(float* values, float* output, int N) {
   }
 }
 
-
 // implementation of absSerial() above, but it is vectorized using CS149 intrinsics
 void absVector(float* values, float* output, int N) {
   __cs149_vec_float x;
@@ -215,6 +214,63 @@ void absVector(float* values, float* output, int N) {
 }
 
 
+
+// returns the sum of all elements in values
+// You can assume N is a multiple of VECTOR_WIDTH
+// You can assume VECTOR_WIDTH is a power of 2
+float arraySumVector(float* values, int N) {
+  __cs149_vec_float x;
+  __cs149_vec_float result;
+  __cs149_mask maskAll;
+  //
+  // CS149 STUDENTS TODO: Implement your vectorized version of arraySumSerial here
+  //
+  float ans=0;
+  for (int i=0; i<N; i+=VECTOR_WIDTH) {
+      maskAll = _cs149_init_ones();  // 选取所有
+      _cs149_vload_float(x, values+i, maskAll);   //加载数据
+for(int time =1;time<VECTOR_WIDTH;time*=2){  //一共进行 log2（位宽）次的错位相加
+  _cs149_hadd_float(x,x);       
+  _cs149_interleave_float(x,x);
+}
+ans+=x.value[0];  //结果相加
+  }
+
+  return ans;
+}
+
+
+
+void clampedExpVector(float* values, int* exponents, float* output, int N) {
+  __cs149_vec_float x;   
+  __cs149_vec_int exp;
+  __cs149_vec_int one=_cs149_vset_int(1);
+  __cs149_vec_float result;
+  __cs149_vec_float maxvalue=_cs149_vset_float(9.999999f);
+  __cs149_mask maskAll,maskjudgegtzero;
+  for(int i =0;i<N;i+=VECTOR_WIDTH){
+    maskAll = _cs149_init_ones();    //设置为全部选取
+    _cs149_vload_float(x, values+i, maskAll);     
+    _cs149_vload_float(result, values+i, maskAll);
+    _cs149_vload_int(exp, exponents+i, maskAll);  //  加载数据
+    _cs149_vgt_int(maskjudgegtzero,exp,one,maskAll);   // 幂数大于1的mask
+
+    while(_cs149_cntbits(maskjudgegtzero)>0){   // 重复、直到幂数均小于等于1
+    _cs149_vsub_int(exp,exp,one,maskjudgegtzero);        
+    _cs149_vmult_float(result,result,x,maskjudgegtzero);   //进行一次相乘
+    _cs149_vgt_int(maskjudgegtzero,exp,one,maskAll);      // 获取幂数大于1的mask
+    }
+
+    
+    _cs149_vgt_float(maskjudgegtzero,result,maxvalue,maskAll);    //大于9.999的mask
+    _cs149_vset_float(result, 9.999999f, maskjudgegtzero);
+    _cs149_vlt_int(maskjudgegtzero,exp,one,maskAll);              //  幂数为0的mask
+    _cs149_vset_float(result, 1.f, maskjudgegtzero);
+    _cs149_vstore_float(output+i, result, maskAll);      //存储数据
+  }
+
+}
+
 // accepts an array of values and an array of exponents
 //
 // For each element, compute values[i]^exponents[i] and clamp value to
@@ -240,17 +296,8 @@ void clampedExpSerial(float* values, int* exponents, float* output, int N) {
   }
 }
 
-void clampedExpVector(float* values, int* exponents, float* output, int N) {
 
-  //
-  // CS149 STUDENTS TODO: Implement your vectorized version of
-  // clampedExpSerial() here.
-  //
-  // Your solution should work for any value of
-  // N and VECTOR_WIDTH, not just when VECTOR_WIDTH divides N
-  //
-  
-}
+
 
 // returns the sum of all elements in values
 float arraySumSerial(float* values, int N) {
@@ -260,21 +307,5 @@ float arraySumSerial(float* values, int N) {
   }
 
   return sum;
-}
-
-// returns the sum of all elements in values
-// You can assume N is a multiple of VECTOR_WIDTH
-// You can assume VECTOR_WIDTH is a power of 2
-float arraySumVector(float* values, int N) {
-  
-  //
-  // CS149 STUDENTS TODO: Implement your vectorized version of arraySumSerial here
-  //
-  
-  for (int i=0; i<N; i+=VECTOR_WIDTH) {
-
-  }
-
-  return 0.0;
 }
 
