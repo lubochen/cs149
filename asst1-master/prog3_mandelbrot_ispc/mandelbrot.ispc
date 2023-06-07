@@ -40,22 +40,29 @@ task void mandelbrot_ispc_task(uniform float x0, uniform float y0,
                                uniform float x1, uniform float y1,
                                uniform int width, uniform int height,
                                uniform int rowsPerTask,
+                               //uniform int colsPerTask,
                                uniform int maxIterations,
                                uniform int output[])
 {
 
     // taskIndex is an ISPC built-in
     
-    uniform int ystart = taskIndex * rowsPerTask;
+    uniform int ystart = (taskIndex) * rowsPerTask;
     uniform int yend = ystart + rowsPerTask;
-    
+   // uniform int xstart = (taskIndex%4) * colsPerTask;
+   // uniform int xend = xstart + colsPerTask;
     uniform float dx = (x1 - x0) / width;
     uniform float dy = (y1 - y0) / height;
-    
-    foreach (j = ystart ... yend, i = 0 ... width) {
+    uniform int nnn =height/16;
+ //   foreach (j = 0  ... nnn, i = 0  ... width ) {
+ //           float x = x0 + i * dx;
+  //          float y = y0 + (j*16+taskIndex)  * dy;
+  //          int index = (j*16+taskIndex)  * width + i;
+   //         output[index] = mandel(x, y, maxIterations);
+  // }
+    foreach (j = ystart  ... yend, i = 0  ... width ) {
             float x = x0 + i * dx;
             float y = y0 + j * dy;
-            
             int index = j * width + i;
             output[index] = mandel(x, y, maxIterations);
     }
@@ -68,12 +75,15 @@ export void mandelbrot_ispc_withtasks(uniform float x0, uniform float y0,
                                       uniform int output[])
 {
 
-    uniform int rowsPerTask = height / 2;
+    uniform int rowsPerTask = height / 16;
+   //uniform int colsPerTask = width / 6;
+   
 
     // create 2 tasks
-    launch[2] mandelbrot_ispc_task(x0, y0, x1, y1,
+    launch[16] mandelbrot_ispc_task(x0, y0, x1, y1,
                                      width, height,
                                      rowsPerTask,
+                                    // colsPerTask,
                                      maxIterations,
                                      output); 
 }

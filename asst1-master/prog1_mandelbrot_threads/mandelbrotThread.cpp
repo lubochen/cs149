@@ -31,9 +31,18 @@ extern void __mandelbrotSerial(
     int numthread,
     int allthread
 );
+extern void ___mandelbrotSerial(
+    float x0, float y0, float x1, float y1,
+    int width, int height,
+    int startRow, int totalRows,
+    int maxIterations,
+    int output[],
+    int numthread,
+    int allthread
+);
 //
 // workerThreadStart --
-//
+//s
 // Thread entrypoint.
 void _workerThreadStart(WorkerArgs * const args) {
 
@@ -53,7 +62,7 @@ void _workerThreadStart(WorkerArgs * const args) {
     ,args->numThreads
     );
 
-    printf("Thread %d finished\n", args->threadId);
+    //printf("Thread %d finished\n", args->threadId);
 }
 void workerThreadStart(WorkerArgs * const args) {
 double startTime = CycleTimer::currentSeconds();
@@ -107,6 +116,7 @@ void mandelbrotThread(
         args[i].height = height;
         args[i].maxIterations = maxIterations;
         args[i].numThreads = numThreads;
+        
         args[i].output = output;
         args[i].threadId = i;
     }

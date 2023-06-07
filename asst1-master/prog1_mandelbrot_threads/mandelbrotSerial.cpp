@@ -126,18 +126,46 @@ void __mandelbrotSerial(
 {
     float dx = (x1 - x0) / width;
     float dy = (y1 - y0) / height;
+    int xstart = numthread%4*400;
+    int ystart = numthread/4*600;
     int endRow = startRow + totalRows;
     
-    for(int temp = 0;temp<totalRows/allthread+1;temp+=1){
-      int j = startRow+temp*allthread+numthread;
-      if (j<endRow)
-      for(int i =0;i<width;++i){
-        float x = x0 + i * dx;
-        float y = y0 + j* dy;
-        int index = (j* width + i);
+    for(int j =0;j<600;j+=1){
+    for(int i =0 ;i<400;i+=1){
+    float x = x0 + (i+xstart) * dx;
+    float y = y0 + (j+ystart) *dy;
+    
+    int index = ((j+ystart) * width + (i+xstart));
+    output[index] = mandel(x, y, maxIterations);
+    }
+    }
+    
+}
+
+void ___mandelbrotSerial(
+    float x0, float y0, float x1, float y1,
+    int width, int height,
+    int startRow, int totalRows,
+    int maxIterations,
+    int output[],
+    int numthread,
+    int allthread
+)
+{
+    float dx = (x1 - x0) / width;
+    float dy = (y1 - y0) / height;
+    int endRow = startRow + totalRows;
+    for(int j =0;j<height;j++){
+    	for(int i =0;i<width;i+=allthread){
+    	    if(i+numthread<width){
+    	    float x = x0 + (i+numthread) * dx;
+        float y = y0 + j * dy;
+        int index = (j* width + i+numthread);
         output[index] = mandel(x, y, maxIterations);
-      }
+    	    }
+    	}
     }
 }
+
 
 
