@@ -5,9 +5,10 @@ void saxpySerial(int N,
                        float Y[],
                        float result[])
 {
-
+     
     for (int i=0; i<N; i++) {
-        result[i] = scale * X[i] + Y[i];
+        result[i] = scale * X[i] +Y[i];
     }
+    
 }
 

@@ -1,5 +1,5 @@
 CXX=g++ -m64
-CXXFLAGS=-I../common -Iobjs/ -O2 -Wall 
+CXXFLAGS=-I../common -Iobjs/ -O0  -Wall 
 ISPC=ispc
 # note: requires AVX2
 ISPCFLAGS=-O3 --target=avx2-i32x8 --arch=x86-64 --pic
@@ -15,7 +15,10 @@ TASKSYS_OBJ=$(addprefix $(OBJDIR)/, $(subst $(COMMONDIR)/,, $(TASKSYS_CXX:.cpp=.
 default: $(APP_NAME)
 
 .PHONY: dirs clean
+all:program
 
+program: main.cpp
+	$(CXX) $(CFLAGS) -S $< -o program.s
 dirs:
 		/bin/mkdir -p $(OBJDIR)/
 

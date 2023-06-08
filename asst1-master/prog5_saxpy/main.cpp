@@ -46,8 +46,8 @@ int main() {
     // initialize array values
     for (unsigned int i=0; i<N; i++)
     {
-        arrayX[i] = i;
-        arrayY[i] = i;
+        arrayX[i] = 5;
+        arrayY[i] = 5;
         resultSerial[i] = 0.f;
         resultISPC[i] = 0.f;
         resultTasks[i] = 0.f;

@@ -51,7 +51,7 @@ void _workerThreadStart(WorkerArgs * const args) {
     // to compute a part of the output image.  For example, in a
     // program that uses two threads, thread 0 could compute the top
     // half of the image and thread 1 could compute the bottom half.
-    __mandelbrotSerial(       //每个子线程调用单线程函数
+    ___mandelbrotSerial(       //每个子线程调用单线程函数
     args->x0,args->y0,args->x1,args->y1    //绘制范围   
     ,args->width,args->height    //宽、高
     ,0//args->height*args->threadId/args->numThreads   //该线程开始的高度
